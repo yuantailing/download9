@@ -11,6 +11,7 @@ import datetime
 class Users(models.Model):
     username = models.CharField(max_length=200);
     password = models.CharField(max_length=200);
+    keepaliveHash = models.CharField(max_length=200, null = True);
     diskSpaceLimit = models.IntegerField(default=20480);
     taskNumberLimit = models.IntegerField(default=10);
     usedDiskSpace = models.IntegerField(default=0);
