@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^login/$', views.login, name = 'login'),
     url(r'^$', views.index, name = 'index'),
     url(r'^logout/$', views.logout, name = 'logout'),
+    url(r'^new/byurl/$', views.new_byurl, name = 'new_byurl'),
+    #url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
 ]
 
 

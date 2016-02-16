@@ -1,0 +1,63 @@
+{% load staticfiles %}
+
+<html lang="zh-CN">
+  {% include 'offDown/head.html' %}
+  
+  <body role="document">
+    {% include 'offDown/nav.html' %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li {% if show == 'all' %}class="active"{% endif %}><a href="?show=all">全部</a></li>
+            <li {% if show == 'completed' %}class="active"{% endif %}><a href="?show=completed">已完成</a></li>
+            <li {% if show == 'incompleted' %}class="active"{% endif %}><a href="?show=incompleted">未完成</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h2 class="sub-header">
+      {% if show == 'all' %}全部任务{% endif %}
+      {% if show == 'completed' %}已完成任务{% endif %}
+      {% if show == 'incompleted' %}未完成任务{% endif %}
+    </h2>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>文件名</th>
+            <th>文件大小</th>
+            <th>任务进度</th>
+            <th>实时速度</th>
+            <th>下载</th>
+            <th>删除</th>
+            <th>原始链接</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+        {% if task.taskCompletedTime != None %}
+          <tr class="success">
+        {% else %}
+          <tr>
+        {% endif %}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ task.taskFilename }}</td>
+            <td>{{ task.taskFilesize }}MB</td>
+            <td>{{ task.taskRate }}%</td>
+            <td>{{ task.taskSpeed }}</td>
+            <td><a href="{% static 'offDown/download/' %}{{task.taskFilename}}">下载</a></td>
+            <td><a href="del">删除</a></td>
+            <td><a href="{{ task.taskUrl }}">原始链接</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    </div>
+    {% include 'offDown/jq.html' %} 
+  </body>
+
+</html>

@@ -21,6 +21,7 @@ class Users(models.Model):
         return self.username
 
 class Tasks(models.Model):
+    taskActive = models.IntegerField(default=0);#有效 = 1, 无效 = 0;
     taskType = models.IntegerField();#HTTP = 1, torrent = 2, magnet = 3;
     taskUrl = models.CharField(max_length = 10240, null = True);
     taskStartTime = models.DateTimeField(null = True);
@@ -28,6 +29,7 @@ class Tasks(models.Model):
     taskFilename = models.CharField(max_length = 200, null = True);
     taskHash = models.CharField(max_length = 200, null = True);
     taskRate = models.IntegerField(default=0);
+    taskSpeed = models.IntegerField(default=0);
     taskCompletedTime = models.DateTimeField(null = True);
     taskGid = models.CharField(max_length = 200, null = True);
     user = models.ForeignKey(Users);

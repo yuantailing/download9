@@ -81,4 +81,34 @@ def login(request):
 def index(request):
     if not checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:login'));
-    return HttpResponse("success");
+    User = Users.objects.get(id=int(request.session['userid']));
+    if(not('show' in request.GET) or (request.GET['show']=='all')):
+        tasks = User.tasks_set.filter(taskActive = 1);
+        return render(request, 'offDown/index.html', {
+            'show': 'all',
+            'User': User,
+            'tasks': tasks,
+        });
+    elif request.GET['show']=='completed' :
+        tasks = User.tasks_set.filter(taskActive = 1).exclude(taskCompletedTime = None)
+        return render(request, 'offDown/index.html', {
+            'show': 'completed',
+            'User': User,
+            'tasks': tasks,
+        });
+    elif request.GET['show']=='incompleted' :
+        tasks = User.tasks_set.filter(taskActive = 1, taskCompletedTime = None)
+        return render(request, 'offDown/index.html', {
+            'show': 'incompleted',
+            'User': User,
+            'tasks': tasks,
+        });
+    
+def new_byurl(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    User = Users.objects.get(id=int(request.session['userid']));
+    
+    return render(request, 'offDown/newByurl.html', {
+        'User': User,
+    })
