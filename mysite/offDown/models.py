@@ -21,6 +21,7 @@ class Users(models.Model):
         return self.username
 
 class Tasks(models.Model):
+    taskName = models.CharField(max_length=200);
     taskActive = models.IntegerField(default=0);#有效 = 1, 无效 = 0;
     taskType = models.IntegerField();#HTTP = 1, torrent = 2, magnet = 3;
     taskUrl = models.CharField(max_length = 10240, null = True);

@@ -6,6 +6,22 @@
   <body role="document">
     {% include 'offDown/nav.html' %}
     
+    <div class="container">
+      <h2>新建链接任务</h2>
+      {% if error_message %}
+      <h2>{{ error_message }}</h2>
+      {% endif %}
+      <form action="{% url 'offDown:new' %}" method="POST">
+        {% csrf_token %}
+        <input class="form-control" name="name" type="text" placeholder="任务名(用于区别任务的标识)">
+        <textarea name="url" id="url" class="form-control" rows="3" placeholder="下载地址(支持HTTP/HTTPS)" style="margin-top: 10px"></textarea>
+        <div class="pull-right" style="margin-top: 10px">
+          <button type="submit" class="btn btn-primary btn-lg ">确定</button>
+        <!--button type="button" class="btn btn-danger btn-lg ">取消</button-->
+        </div>
+      </form>
+    </div>
+    
     {% include 'offDown/jq.html' %} 
   </body>
 

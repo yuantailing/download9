@@ -36,10 +36,10 @@
                 {% csrf_token %}
                 <h2 class="form-signin-heading">请先登入</h2>
                 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-                <label for="inputUsername" class="sr-only">Username</label>
-                <input type="username" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-                <label for="pre-password" class="sr-only">Password</label>
+                <input type="username" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+                <label for="username" class="sr-only">Username</label>
                 <input type="password" name="pre-password" id="pre-password" class="form-control" placeholder="Password" required>
+                <label for="pre-password" class="sr-only">Password</label>
                 <input type="hidden" name="password" id="password">
                 <div class="checkbox">
                     <label>
