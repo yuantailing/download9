@@ -187,3 +187,16 @@ def deleteTask(request):
     task.save();
     os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
     return HttpResponseRedirect(reverse('offDown:index'));
+    
+def search(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    User = Users.objects.get(id=int(request.session['userid']));
+    if('taskName' in request.GET):
+        tasks = User.tasks_set.filter(taskActive = 1).filter(taskName__contains=request.GET['taskName']);
+        return render(request, 'offDown/index.html', {
+            'show': 'all',
+            'User': User,
+            'tasks': tasks,
+        });
+    return HttpResponseRedirect(reverse('offDown:index'));

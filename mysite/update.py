@@ -16,7 +16,7 @@ while True:
             T.taskActive = 0;
             continue;
             #Todo delete file
-        if T.taskCompletsedTime == None:
+        if T.taskCompletedTime == None:
             Gid = T.taskGid;
             try:
                 status = con.tellStatus(gid = Gid);
