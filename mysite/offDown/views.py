@@ -8,6 +8,12 @@ from django.utils import timezone
 import hashlib
 from offDown.pyaria2 import *
 import os, sys
+import urllib
+import json
+
+A9ClientID = 'dIKjGHUcbe8mu2TRU5V0xu4XeQk';
+A9ClientSecret = 'qWvQZAxXnirkufMGB8Ij';
+
 def get_md5(my_str):
     md5 = hashlib.md5();
     md5.update(my_str.encode('utf-8'));
@@ -19,7 +25,7 @@ def checkLogin(request):
     if 'keepaliveHash' in request.COOKIES :
         HttpResponse('ok');
         hash_v = request.COOKIES['keepaliveHash'];
-        print('hash=', hash_v);
+        #print('hash=', hash_v);
         try:
             User = Users.objects.get(keepaliveHash = hash_v);
         except(Users.DoesNotExist):
@@ -78,6 +84,29 @@ def login(request):
     User.save();
         
     return response;
+
+def oauth(request):
+    
+    try:
+        code = request.GET['code'];
+        a9url = 'https://accounts.net9.org/api/access_token?client_id=' + A9ClientID + '&client_secret=' + A9ClientSecret + '&code=' + code;
+        res = urllib.request.urlopen(a9url);
+        token = json.loads(res.read().decode('utf-8'))['access_token'];
+        info_url = 'https://accounts.net9.org/api/userinfo?access_token=' + token;
+        res = urllib.request.urlopen(info_url);
+        User_info = json.loads(res.read().decode('utf-8'));
+        a9_username = User_info['user']['name'] + '__a9';
+    except:
+        HttpResponseRedirect(reverse('offDown:login'));
+    
+    try:
+        User = Users.objects.get(username = a9_username);    
+    except(Users.DoesNotExist):
+        User = Users(username = a9_username, password = get_md5(str(timezone.now())));
+        User.save();
+    request.session['userid'] = User.id;
+    print(User.id);
+    return HttpResponseRedirect(reverse('offDown:index'));
 
 def index(request):
     if not checkLogin(request):

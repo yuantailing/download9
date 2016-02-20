@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^new/byurl/$', views.new_byurl, name = 'new_byurl'),
     url(r'^new/$', views.new, name = 'new'),
     url(r'^del/$', views.deleteTask, name = 'deleteTask'),
+    url(r'^oauth_redirect/$', views.oauth, name = 'oauth'),
     #url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
 ]
 
