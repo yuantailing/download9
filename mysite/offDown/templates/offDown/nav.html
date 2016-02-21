@@ -17,8 +17,8 @@
             <li class="{% if not show %}active{% endif %} dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">新建任务 <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="{% url 'offDown:new_byurl' %}">by url/magnet</a></li>
-                <li><a href="{#% url 'offDown:new_bytorrent' %#}">by torrent</a></li>
+                <li><a href="{% url 'offDown:new_byurl' %}">新建链接任务</a></li>
+                <li><a href="{% url 'offDown:new_bytorrent' %}">新建BT任务</a></li>
               </ul>
             </li>
           </ul>

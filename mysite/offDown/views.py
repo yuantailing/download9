@@ -148,6 +148,12 @@ def new(request):
         return HttpResponseRedirect(reverse('offDown:login'));
     if not('url' in request.POST) or not('name' in request.POST):
         return HttpResponseRedirect(reverse('offDown:index'));
+    
+    if 'magnet:?xt=urn:btih' in request.POST['url']:
+        return render(request, 'offDown/newByurl.html',{
+            'error_message': "暂不支持磁力链接，请将磁力链接转换成种子用BT下载"
+        });
+    
     try:
         con = PyAria2();
     except:
@@ -173,6 +179,38 @@ def new(request):
     
     return HttpResponseRedirect(reverse('offDown:index'));
     
+def actDelete(taskID):
+    task = Tasks.objects.get(id = taskID);
+    task.taskActive = 0;
+    task.save();
+    con = PyAria2();
+    try:
+        con.tellActive();
+    except:
+        pass;
+        
+    if task.taskType == 1:
+        try:
+            if task.taskStatus == 'active':
+                con.forcePause(task.taskGid);
+            for file in con.tellStatus(task.taskGid)['files']:
+                os.remove(file['path']);
+            con.forceRemove(task.taskGid);
+            os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
+        except:
+            pass;
+    if task.taskType == 2:
+        try:
+            con = PyAria2();
+            if task.taskStatus == 'complete':
+                os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
+            if len(Tasks.objects.filter(taskActive=1).filter(taskHash=task.taskHash)) == 0:
+                for file in con.tellStatus(task.taskGid)['files']:
+                    os.remove(file['path']);
+                con.forceRemove(task.taskGid);
+        except:
+            pass;
+            
 
 def deleteTask(request):
     if not checkLogin(request):
@@ -183,9 +221,21 @@ def deleteTask(request):
     task = Tasks.objects.get(id = int(request.GET['taskID']));
     if task.user.id != request.session['userid']:
         return HttpResponseRedirect(reverse('offDown:index'));
+    actDelete(task.id);
+    '''
     task.taskActive = 0;
     task.save();
-    os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
+    try:
+        con = PyAria2();
+        if task.taskStatus == 'active':
+            con.forcePause(task.taskGid);
+        for file in con.tellStatus(task.taskGid)['files']:
+            os.remove(file['path']);
+        con.forceRemove(task.taskGid);
+        os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
+    except:
+        pass;
+    '''
     return HttpResponseRedirect(reverse('offDown:index'));
     
 def search(request):
@@ -198,5 +248,56 @@ def search(request):
             'show': 'all',
             'User': User,
             'tasks': tasks,
+        });
+    return HttpResponseRedirect(reverse('offDown:index'));
+
+def new_bytorrent(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    User = Users.objects.get(id=int(request.session['userid']));
+    
+    return render(request, 'offDown/newBytorrent.html', {
+        'User': User,
+    })    
+
+def newTorrent(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    User = Users.objects.get(id=int(request.session['userid']));
+    
+    #save the torrent file
+    try:
+        f = request.FILES['torrentfile'];
+        #print(f);
+        fname = User.username + '_' + f.name;
+        with open(os.path.join(DEFAULT_DIR , fname), 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk);
+    except:
+        return render(request, 'offDown/newBytorrent.html',{
+            'error_message': "存储种子文件失败，请重试或请与管理员联系",
+        });
+    
+    #try to connect aria2
+    try:
+        con = PyAria2();
+    except:
+        return render(request, 'offDown/newBytorrent.html',{
+            'error_message': "服务器出错，请与管理员联系",
+        });
+        
+    try:
+        Gid = con.addTorrent(torrent=os.path.join(DEFAULT_DIR , fname), uris=[], options={'dir': DEFAULT_DIR});
+    except:
+        return render(request, 'offDown/newBytorrent.html',{
+            'error_message': "添加任务失败或种子解析失败，请重试",
+        });
+        
+    try:
+        T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 2, taskUrl = fname, taskStartTime=timezone.now(), taskFilename = None, taskGid=Gid, user=User);
+        T.save();
+    except:
+        return render(request, 'offDown/newBytorrent.html',{
+            'error_message': "添加任务失败，请重试或与管理员联系!",
         });
     return HttpResponseRedirect(reverse('offDown:index'));

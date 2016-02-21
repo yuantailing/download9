@@ -33,9 +33,10 @@ class Tasks(models.Model):
     taskSpeed = models.IntegerField(default=0);
     taskCompletedTime = models.DateTimeField(null = True);
     taskGid = models.CharField(max_length = 200, null = True);
+    taskStatus = models.CharField(max_length = 200, default=b'');
     user = models.ForeignKey(Users);
     def __str__(self):
-        return self.taskFilename;
+        return self.taskName;
     def was_completed(self):
         return self.taskCompletedTime != None;
     def was_outdated(self):
