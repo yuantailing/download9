@@ -10,6 +10,7 @@ from offDown.pyaria2 import *
 import os, sys
 import urllib
 import json
+import re
 
 A9ClientID = 'dIKjGHUcbe8mu2TRU5V0xu4XeQk';
 A9ClientSecret = 'qWvQZAxXnirkufMGB8Ij';
@@ -53,7 +54,27 @@ def logout(request):
         pass;
         
     return response;
-    
+
+def regist(request):
+    if not ('username' in request.POST and 'password' in request.POST):
+        return render(request, 'offDown/regist.html');
+    pattern = re.compile('([^a-z0-9A-Z])+')
+    if(pattern.findall(request.POST['username'])):
+        return render(request, 'offDown/regist.html', {
+            'error_message': "用户名非法",
+        });
+    try:
+        User = Users.objects.get(username = request.POST['username']);
+        return render(request, 'offDown/regist.html', {
+            'error_message': "用户名已存在"
+        });
+    except(Users.DoesNotExist):
+        User = Users(username = request.POST['username'], password = request.POST['password']);
+        User.save();
+        return render(request, 'offDown/login.html', {
+            'error_message': "注册成功"
+        });
+
 def login(request):
     if checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:index'));

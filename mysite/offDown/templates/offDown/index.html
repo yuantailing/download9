@@ -56,7 +56,11 @@
             <td>未完成</td>
             {% endif %}
             <td><a href="del?taskID={{ task.id }}">删除</a></td>
+            {% if task.taskType == 1 %}
             <td><a href="{{ task.taskUrl }}">原始链接</a></td>
+            {% else %}
+            <td><a href="{% static 'offDown/download/' %}{{ task.taskUrl }}">原始链接</a></td>
+            {% endif %}
           </tr>
         {% endfor %}
         </tbody>

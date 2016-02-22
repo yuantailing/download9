@@ -8,18 +8,28 @@
         <meta name="description" content="登入">
         <meta name="author" content="Blink">
         
-        <title>Download9登入</title>
+        <title>Download9注册</title>
         
         <script src="{% static 'offDown/js/jquery.js' %}"></script>
         <script src="{% static 'offDown/js/jquery.md5.js' %}"></script>
         <link href="{% static 'offDown/css/bootstrap.css' %}" rel="stylesheet" >
-        <link href="{% static 'offDown/css/signin.css' %}" rel="stylesheet" >
+        <link href="{% static 'offDown/css/regist.css' %}" rel="stylesheet" >
         
  
  
         <script>
             $().ready(function(){
                 $("form").submit(function(){
+                    var ps1 = $("#pre-password").val();
+                    var ps2 = $("#rep-password").val();
+                    if (ps1 != ps2)
+                    {
+                        $("#rep-password").attr("placeholder", "两次密码输入不同");
+                        $("#rep-password").val('');
+                        return false;
+                    }
+                    
+                    
                     var v=$.md5($("#pre-password").val());
                     $("#password").val(v);
                     $("#pre-password").attr("disabled", "true");
@@ -32,26 +42,22 @@
     <body>
 
         <div class="container">
-            <form class="form-signin" action="{% url 'offDown:login' %}" method="POST">
+            <form class="form-signin" action="{% url 'offDown:regist' %}" method="POST">
                 {% csrf_token %}
-                <h2 class="form-signin-heading">请先登入</h2>
+                <h2 class="form-signin-heading">注册</h2>
                 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
                 <input type="username" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
                 <label for="username" class="sr-only">Username</label>
                 <input type="password" name="pre-password" id="pre-password" class="form-control" placeholder="Password" required>
                 <label for="pre-password" class="sr-only">Password</label>
+                <input type="password" name="rep-password" id="rep-password" class="form-control" placeholder="Confirm Password" required>
+                <label for="rep-password" class="sr-only">Confirm Password</label>
                 <input type="hidden" name="password" id="password">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="remember" value="1"> 记住我
-                    </label>
-                </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">登入</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" >注册</button>
             </form>
-            <div class="form-signin">
-                <a style = "text-decoration: none"href="{% url 'offDown:regist' %}"> <button class="btn btn-warning buttom-reg-left">注册</button></a>
-                <a style = "text-decoration: none"href="https://accounts.net9.org/api/authorize?client_id=dIKjGHUcbe8mu2TRU5V0xu4XeQk&redirect_uri=http://127.0.0.1:8000/offDown/oauth_redirect"> <button class="btn btn-success buttom-reg-right">使用Accounts9登入</button></a>
-            </div>
-        </div> <!-- /container -->
+            
+            </div> <!-- /container -->
+      
+
     </body>
 </html>

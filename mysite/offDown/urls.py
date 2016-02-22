@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^search/$', views.search, name = 'search'),
     url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
     url(r'^newTorrent/$', views.newTorrent, name = 'newTorrent'),
-    
+    url(r'^regist/$', views.regist, name = 'regist'),
     #url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
 ]
 
