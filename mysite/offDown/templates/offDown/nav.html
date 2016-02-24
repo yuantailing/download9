@@ -29,6 +29,9 @@
           <form action="{% url 'offDown:search' %}" method="GET" class="navbar-form navbar-right" role="search">
             <input name="taskName" class="form-control" type="text" placeholder="Search" autocomplete="off" />
           </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a>任务数限制: {{ User.usedTaskNumber }}/{{ User.taskNumberLimit }} 空间限制: {{ User.usedDiskSpace }}/{{ User.diskSpaceLimit }}MB</a></li>
+          </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>

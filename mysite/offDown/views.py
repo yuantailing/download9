@@ -14,6 +14,7 @@ import re
 
 A9ClientID = 'dIKjGHUcbe8mu2TRU5V0xu4XeQk';
 A9ClientSecret = 'qWvQZAxXnirkufMGB8Ij';
+reCAPTCHAsecret = '6LfA3BgTAAAAANQ7oSvENM-4T0aA7-A-dwxvfxUU';
 
 def get_md5(my_str):
     md5 = hashlib.md5();
@@ -56,8 +57,18 @@ def logout(request):
     return response;
 
 def regist(request):
-    if not ('username' in request.POST and 'password' in request.POST):
+    if not ('username' in request.POST and 'password' in request.POST and 'g-recaptcha-response' in request.POST):
         return render(request, 'offDown/regist.html');
+        
+    reCAPTCHAurl = 'https://www.google.com/recaptcha/api/siteverify';
+    postdata = urllib.parse.urlencode({'secret': reCAPTCHAsecret, 'response': request.POST['g-recaptcha-response']});
+    postdata = postdata.encode('utf-8')
+    res = urllib.request.urlopen(reCAPTCHAurl, postdata);
+    if json.loads(res.read().decode('utf-8'))['success'] == False:
+        return render(request, 'offDown/regist.html', {
+            'error_message': "你是人类吗?",
+        });
+    
     pattern = re.compile('([^a-z0-9A-Z])+')
     if(pattern.findall(request.POST['username'])):
         return render(request, 'offDown/regist.html', {
@@ -170,6 +181,15 @@ def new(request):
     if not('url' in request.POST) or not('name' in request.POST):
         return HttpResponseRedirect(reverse('offDown:index'));
     
+    User = Users.objects.get(id = request.session['userid']);
+    if User.usedTaskNumber >= User.taskNumberLimit:
+        return render(request, 'offDown/newByurl.html', {
+            'error_message': "超过用户任务数限制"
+        });
+    if User.usedDiskSpace >= User.diskSpaceLimit:
+        return render(request, 'offDown/newByurl.html',{
+            'error_message': "超过用户空间限制" 
+        });
     if 'magnet:?xt=urn:btih' in request.POST['url']:
         return render(request, 'offDown/newByurl.html',{
             'error_message': "暂不支持磁力链接，请将磁力链接转换成种子用BT下载"
@@ -180,16 +200,16 @@ def new(request):
     except:
         return render(request, 'offDown/newByurl.html',{
             'error_message': "服务器出错，请与Blink联系",
-        });
-        
+        });    
     try:
         outFilename = get_md5(str(timezone.now()));
         Gid = con.addUri(uris=[request.POST['url']], options={'out':outFilename, 'dir':DEFAULT_DIR});
+        print(Gid);
     except:
         return render(request, 'offDown/newByurl.html',{
             'error_message': "添加任务失败或URL无效，请重试",
         });
-    User = Users.objects.get(id = request.session['userid']);
+    
     try:
         T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 1, taskUrl=request.POST['url'], taskStartTime=timezone.now(), taskFilename=outFilename, taskGid=Gid, user=User);
         T.save();
@@ -197,7 +217,8 @@ def new(request):
         return render(request, 'offDown/newByurl.html',{
             'error_message': "添加任务失败或URL无效，请重试!",
         });
-    
+    User.usedTaskNumber += 1;
+    User.save();
     return HttpResponseRedirect(reverse('offDown:index'));
     
 def actDelete(taskID):
@@ -212,25 +233,52 @@ def actDelete(taskID):
         
     if task.taskType == 1:
         try:
+            #if task.taskStatus == 'active':
+            #    con.forcePause(task.taskGid);
+            filelist = con.tellStatus(task.taskGid)['files'];
+            if len(filelist) == 0:
+                task.taskDelFailed = True;
+                task.save();
+                return ;
+            #for file in con.tellStatus(task.taskGid)['files']:
+            #    os.remove(file['path']);
             if task.taskStatus == 'active':
-                con.forcePause(task.taskGid);
-            for file in con.tellStatus(task.taskGid)['files']:
+                con.forceRemove(task.taskGid);
+            if task.taskStatus == 'complete':
+                con.removeDownloadResult(task.taskGid);
+            for file in filelist:
                 os.remove(file['path']);
-            con.forceRemove(task.taskGid);
-            os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
-        except:
-            pass;
+            
+        except FileNotFoundError:
+            task.taskDelFailed = False;
+            
+        except :
+            task.taskDelFailed = True;
+            
+        else :
+            task.taskDelFailed = False;
+            
     if task.taskType == 2:
         try:
             con = PyAria2();
             if task.taskStatus == 'complete':
                 os.remove(os.path.join(DEFAULT_DIR, task.taskFilename));
             if len(Tasks.objects.filter(taskActive=1).filter(taskHash=task.taskHash)) == 0:
-                for file in con.tellStatus(task.taskGid)['files']:
-                    os.remove(file['path']);
+                filelist = con.tellStatus(task.taskGid)['files'];
+                if len(filelist) == 0:
+                    task.taskDelFailed = True;
+                    task.save();
+                    return ;
                 con.forceRemove(task.taskGid);
-        except:
-            pass;
+                for file in filelist:
+                    os.remove(file['path']);
+        except FileNotFoundError:
+            task.taskDelFailed = False;
+        except :
+            task.taskDelFailed = True;
+        else :
+            task.taskDelFailed = False;
+    task.save();            
             
 
 def deleteTask(request):
@@ -240,9 +288,19 @@ def deleteTask(request):
         return HttpResponseRedirect(reverse('offDown:index'));
     
     task = Tasks.objects.get(id = int(request.GET['taskID']));
+    if task.taskActive == 0:
+        return HttpResponseRedirect(reverse('offDown:index'));
     if task.user.id != request.session['userid']:
         return HttpResponseRedirect(reverse('offDown:index'));
-    actDelete(task.id);
+    task.taskActive = 0;
+    task.taskDelFailed = True;
+    User = task.user;
+    User.usedTaskNumber -= 1;
+    User.usedDiskSpace -= task.taskFilesize;
+    User.save();
+    #print(task.taskGid);
+    task.save();
+    #actDelete(task.id);
     '''
     task.taskActive = 0;
     task.save();
@@ -285,7 +343,14 @@ def newTorrent(request):
     if not checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:login'));
     User = Users.objects.get(id=int(request.session['userid']));
-    
+    if User.usedTaskNumber >= User.taskNumberLimit:
+        return render(request, 'offDown/newByurl.html', {
+            'error_message': "超过用户任务数限制"
+        });
+    if User.usedDiskSpace >= User.diskSpaceLimit:
+        return render(request, 'offDown/newByurl.html',{
+            'error_message': "超过用户空间限制" 
+        });
     #save the torrent file
     try:
         f = request.FILES['torrentfile'];
@@ -321,4 +386,6 @@ def newTorrent(request):
         return render(request, 'offDown/newBytorrent.html',{
             'error_message': "添加任务失败，请重试或与管理员联系!",
         });
+    User.usedTaskNumber += 1;
+    User.save();
     return HttpResponseRedirect(reverse('offDown:index'));

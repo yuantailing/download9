@@ -49,6 +49,9 @@ while True:
                     T.taskSpeed = int(int(status['downloadSpeed']) / 1024);
                     if not T.taskFilesize:
                         T.taskFilesize = int(int(status['totalLength']) / 1048576);
+                        User = T.user;
+                        User.usedDiskSpace += T.taskFilesize;
+                        User.save();
                     
                     if T.taskStatus == 'complete':
                         T.taskCompletedTime=timezone.now();
@@ -79,6 +82,9 @@ while True:
                     
                     if not T.taskFilesize:
                         T.taskFilesize = int(int(status['totalLength']) / 1048576);
+                        User = T.user;
+                        User.usedDiskSpace += T.taskFilesize;
+                        User.save();
                     
                     if status['totalLength'] == status['completedLength'] and T.taskStatus == 'active':
                         T.taskStatus = 'complete';
@@ -90,7 +96,9 @@ while True:
                     T.save();
                 except:
                     pass;
-                    
+    Ts = Tasks.objects.filter(taskDelFailed = True);
+    for T in Ts:
+        actDelete(T.id);                
     time.sleep(5);        
             
             

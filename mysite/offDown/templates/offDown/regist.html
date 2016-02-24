@@ -5,13 +5,14 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
-        <meta name="description" content="登入">
+        <meta name="description" content="注册">
         <meta name="author" content="Blink">
         
         <title>Download9注册</title>
         
         <script src="{% static 'offDown/js/jquery.js' %}"></script>
         <script src="{% static 'offDown/js/jquery.md5.js' %}"></script>
+        <script src='https://www.google.com/recaptcha/api.js'></script>
         <link href="{% static 'offDown/css/bootstrap.css' %}" rel="stylesheet" >
         <link href="{% static 'offDown/css/regist.css' %}" rel="stylesheet" >
         
@@ -53,6 +54,7 @@
                 <input type="password" name="rep-password" id="rep-password" class="form-control" placeholder="Confirm Password" required>
                 <label for="rep-password" class="sr-only">Confirm Password</label>
                 <input type="hidden" name="password" id="password">
+                <div class="g-recaptcha" data-sitekey="6LfA3BgTAAAAAKqbOu666FW1YjAGJHhttcGVV2NV"></div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit" >注册</button>
             </form>
             
