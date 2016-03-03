@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
     url(r'^newTorrent/$', views.newTorrent, name = 'newTorrent'),
     url(r'^regist/$', views.regist, name = 'regist'),
+    url(r'^gets/$', views.getStatus, name = 'getStatus'),
     #url(r'^new/bytorrent/$', views.new_bytorrent, name = 'new_bytorrent'),
 ]
 

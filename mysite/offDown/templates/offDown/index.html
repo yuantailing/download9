@@ -40,16 +40,16 @@
         <tbody>
         {% for task in tasks %}
         {% if task.taskCompletedTime != None %}
-          <tr class="success">
+          <tr name = "statusTable" class="success" id = "{{ task.id }}">
         {% else %}
-          <tr>
+          <tr name = "statusTable" id = "{{ task.id }}">
         {% endif %}
             <td>{{ forloop.counter }}</td>
             <td>{{ task.taskName }}</td>
-            <td>{{ task.taskStatus }}</td>
+            <td name="status">{{ task.taskStatus }}</td>
             <td>{{ task.taskFilesize }}MB</td>
-            <td>{{ task.taskRate }}%</td>
-            <td>{{ task.taskSpeed }}KiB/s</td>
+            <td name="rate">{{ task.taskRate }}%</td>
+            <td name="speed">{{ task.taskSpeed }}KiB/s</td>
             {% if task.taskCompletedTime != None %}
             <td><a href="{% static 'offDown/download/' %}{{task.taskFilename}}">下载</a></td>
             {% else %}
@@ -67,7 +67,8 @@
       </table>
     </div>
     </div>
-    {% include 'offDown/jq.html' %} 
+    {% include 'offDown/jq.html' %}
+    <script src="{% static 'offDown/js/ajax_refresh.js' %}"></script>
   </body>
-
+   
 </html>

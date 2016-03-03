@@ -389,3 +389,21 @@ def newTorrent(request):
     User.usedTaskNumber += 1;
     User.save();
     return HttpResponseRedirect(reverse('offDown:index'));
+    
+    
+def getStatus(request):
+    if not checkLogin(request):
+        return HttpResponse(json.dumps({'status': 'failed'}));
+    if not ('id' in request.GET):
+        return HttpResponse(json.dumps({'status': 'failed'}));
+    task = Tasks.objects.get(id = int(request.GET['id']));
+    if task.user.id != request.session['userid']:
+        return HttpResponse(json.dumps({'status': 'failed'}));
+        
+    res = task.toDict();
+    res['status'] = 'success';
+    res['taskStartTime'] = str(res['taskStartTime']);
+    res['taskCompletedTime'] = str(res['taskCompletedTime']);
+    res['user'] = None;
+    return HttpResponse(json.dumps(res));
+    

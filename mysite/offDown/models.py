@@ -42,3 +42,5 @@ class Tasks(models.Model):
         return self.taskCompletedTime != None;
     def was_outdated(self):
         return self.taskStartTime < timezone.now() - datetime.timedelta(hours = self.user.savetimeLimit);
+    def toDict(self):
+        return dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]);
