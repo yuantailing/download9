@@ -11,6 +11,8 @@ import os, sys
 import urllib
 import json
 import re
+from offDown.getFilename import *
+
 
 A9ClientID = 'dIKjGHUcbe8mu2TRU5V0xu4XeQk';
 A9ClientSecret = 'qWvQZAxXnirkufMGB8Ij';
@@ -174,7 +176,56 @@ def new_byurl(request):
     return render(request, 'offDown/newByurl.html', {
         'User': User,
     })
-
+def new2(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    if not('url' in request.POST) or not('name' in request.POST):
+        return HttpResponseRedirect(reverse('offDown:index'));
+    User = Users.objects.get(id = request.session['userid']);
+    if User.usedTaskNumber >= User.taskNumberLimit:
+        res = {'status': 'error', 'content': "超过用户任务数限制"};
+        return HttpResponse(json.dumps(res));
+        
+    if User.usedDiskSpace >= User.diskSpaceLimit:
+        res = {'status': 'error', 'content': "超过用户空间限制"};
+        return HttpResponse(json.dumps(res));
+    if 'magnet:?xt=urn:btih' in request.POST['url']:
+        res = {'status': 'error', 'content': "暂不支持磁力链接，请将磁力链接转换成种子用BT下载"};
+        return HttpResponse(json.dumps(res));
+    
+    try:
+        con = PyAria2();
+    except:
+        res = {'status': 'error', 'content': "服务器出错，请与管理员联系"};
+        return HttpResponse(json.dumps(res));    
+    try:
+        realurl, realFilename = getDownloadFilename(request.POST['url']);
+        outFilename = get_md5(str(timezone.now()))[0:5] + '_' + realFilename;
+        if len(outFilename) > 50:
+            outFilename = get_md5(str(timezone.now()));
+        Gid = con.addUri(uris=[realurl], options={'out': outFilename, 'dir':DEFAULT_DIR});
+        #Gid = con.addUri(uris=[realurl], options={'dir':DEFAULT_DIR});
+        
+        print(Gid);
+    except:
+        res = {'status': 'error', 'content': "添加任务失败或URL无效，请重试"};
+        return HttpResponse(json.dumps(res));
+    
+    try:
+        T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 1, taskUrl=request.POST['url'], taskStartTime=timezone.now(), taskGid=Gid, user=User);
+        T.save();
+    except:
+        res = {'status': 'error', 'content': "添加任务失败或URL无效，请重试"};
+        return HttpResponse(json.dumps(res));
+    User.usedTaskNumber += 1;
+    User.save();
+    res = {'status': 'success', 'content': "success"};
+    return HttpResponse(json.dumps(res));
+    
+    
+    
+    
+'''        
 def new(request):
     if not checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:login'));
@@ -202,8 +253,13 @@ def new(request):
             'error_message': "服务器出错，请与Blink联系",
         });    
     try:
-        outFilename = get_md5(str(timezone.now()));
-        Gid = con.addUri(uris=[request.POST['url']], options={'out':outFilename, 'dir':DEFAULT_DIR});
+        realurl, realFilename = getDownloadFilename(request.POST['url']);
+        outFilename = get_md5(str(timezone.now()))[0:5] + '_' + realFilename;
+        if len(outFilename) > 50:
+            outFilename = get_md5(str(timezone.now()));
+        Gid = con.addUri(uris=[realurl], options={'out': outFilename, 'dir':DEFAULT_DIR});
+        #Gid = con.addUri(uris=[realurl], options={'dir':DEFAULT_DIR});
+        
         print(Gid);
     except:
         return render(request, 'offDown/newByurl.html',{
@@ -211,7 +267,7 @@ def new(request):
         });
     
     try:
-        T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 1, taskUrl=request.POST['url'], taskStartTime=timezone.now(), taskFilename=outFilename, taskGid=Gid, user=User);
+        T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 1, taskUrl=request.POST['url'], taskStartTime=timezone.now(), taskGid=Gid, user=User);
         T.save();
     except:
         return render(request, 'offDown/newByurl.html',{
@@ -220,6 +276,7 @@ def new(request):
     User.usedTaskNumber += 1;
     User.save();
     return HttpResponseRedirect(reverse('offDown:index'));
+'''
     
 def actDelete(taskID):
     task = Tasks.objects.get(id = taskID);
@@ -233,30 +290,38 @@ def actDelete(taskID):
         
     if task.taskType == 1:
         try:
+            taskStatus = con.tellStatus(task.taskGid)['status'];
+            if taskStatus == 'error':
+                task.taskDelFailed = 0;
+                task.save();
+                return ;
             #if task.taskStatus == 'active':
             #    con.forcePause(task.taskGid);
             filelist = con.tellStatus(task.taskGid)['files'];
+            '''
             if len(filelist) == 0:
                 task.taskDelFailed = True;
                 task.save();
                 return ;
+            '''
             #for file in con.tellStatus(task.taskGid)['files']:
             #    os.remove(file['path']);
-            if task.taskStatus == 'active':
+            
+            if taskStatus == 'active':
                 con.forceRemove(task.taskGid);
-            if task.taskStatus == 'complete':
+            if taskStatus == 'complete':
                 con.removeDownloadResult(task.taskGid);
             for file in filelist:
                 os.remove(file['path']);
             
         except FileNotFoundError:
-            task.taskDelFailed = False;
+            task.taskDelFailed = 0;
             
         except :
-            task.taskDelFailed = True;
+            task.taskDelFailed += 1;
             
         else :
-            task.taskDelFailed = False;
+            task.taskDelFailed = 0;
             
     if task.taskType == 2:
         try:
@@ -266,18 +331,18 @@ def actDelete(taskID):
             if len(Tasks.objects.filter(taskActive=1).filter(taskHash=task.taskHash)) == 0:
                 filelist = con.tellStatus(task.taskGid)['files'];
                 if len(filelist) == 0:
-                    task.taskDelFailed = True;
+                    task.taskDelFailed += 1;
                     task.save();
                     return ;
                 con.forceRemove(task.taskGid);
                 for file in filelist:
                     os.remove(file['path']);
         except FileNotFoundError:
-            task.taskDelFailed = False;
+            task.taskDelFailed = 0;
         except :
-            task.taskDelFailed = True;
+            task.taskDelFailed += 1;
         else :
-            task.taskDelFailed = False;
+            task.taskDelFailed = 0;
     task.save();            
             
 
@@ -293,7 +358,7 @@ def deleteTask(request):
     if task.user.id != request.session['userid']:
         return HttpResponseRedirect(reverse('offDown:index'));
     task.taskActive = 0;
-    task.taskDelFailed = True;
+    task.taskDelFailed = 1;
     User = task.user;
     User.usedTaskNumber -= 1;
     User.usedDiskSpace -= task.taskFilesize;
@@ -339,6 +404,54 @@ def new_bytorrent(request):
         'User': User,
     })    
 
+def newTorrent2(request):
+    if not checkLogin(request):
+        return HttpResponseRedirect(reverse('offDown:login'));
+    User = Users.objects.get(id=int(request.session['userid']));
+    if User.usedTaskNumber >= User.taskNumberLimit:
+        res = {'status': 'error', 'content': "超过用户任务数限制"};
+        return HttpResponse(json.dumps(res));
+        
+    if User.usedDiskSpace >= User.diskSpaceLimit:
+        res = {'status': 'error', 'content': "超过用户空间限制"};
+        return HttpResponse(json.dumps(res));
+    #save the torrent file
+    try:
+        f = request.FILES['torrentfile'];
+        #print(f);
+        fname = User.username + '_' + f.name;
+        with open(os.path.join(DEFAULT_DIR , fname), 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk);
+    except:
+        res = {'status': 'error', 'content': "存储种子文件失败，请重试或请与管理员联系"};
+        return HttpResponse(json.dumps(res));
+    #try to connect aria2
+    try:
+        con = PyAria2();
+    except:
+        res = {'status': 'error', 'content': "服务器出错，请与管理员联系"};
+        return HttpResponse(json.dumps(res));    
+        
+    try:
+        Gid = con.addTorrent(torrent=os.path.join(DEFAULT_DIR , fname), uris=[], options={'dir': DEFAULT_DIR});
+    except:
+        res = {'status': 'error', 'content': "添加任务失败或种子解析失败，请重试"};
+        return HttpResponse(json.dumps(res));
+        
+    try:
+        T = Tasks(taskName = request.POST['name'], taskActive = 1, taskType = 2, taskUrl = fname, taskStartTime=timezone.now(), taskFilename = None, taskGid=Gid, user=User);
+        T.save();
+    except:
+        res = {'status': 'error', 'content': "添加任务失败，请重试或与管理员联系"};
+        return HttpResponse(json.dumps(res));
+        
+    User.usedTaskNumber += 1;
+    User.save();
+    res = {'status': 'success', 'content': "success"};
+    return HttpResponse(json.dumps(res));
+
+'''
 def newTorrent(request):
     if not checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:login'));
@@ -389,7 +502,7 @@ def newTorrent(request):
     User.usedTaskNumber += 1;
     User.save();
     return HttpResponseRedirect(reverse('offDown:index'));
-    
+'''    
     
 def getStatus(request):
     if not checkLogin(request):

@@ -29,7 +29,8 @@ while True:
     Ts = Tasks.objects.filter(taskActive=1);
     for T in Ts:
         if T.was_outdated():
-            actDelete(T.id);
+            T.taskActive = 0;
+            T.taskDelFailed = 1;
             continue;
             
         if T.taskCompletedTime == None:
@@ -54,6 +55,7 @@ while True:
                         User.save();
                     
                     if T.taskStatus == 'complete':
+                        T.taskFilename = os.path.split(status['files'][0]['path'])[1];
                         T.taskCompletedTime=timezone.now();
                     T.save()
                 except:
@@ -91,12 +93,13 @@ while True:
                     
                     if T.taskStatus == 'complete':
                         T.taskFilename = compress(status['files']);
+                        T.taskSpeed = 0;
                         print(T.taskStatus);
                         T.taskCompletedTime = timezone.now();
                     T.save();
                 except:
                     pass;
-    Ts = Tasks.objects.filter(taskDelFailed = True);
+    Ts = Tasks.objects.filter(taskDelFailed__gt=0).filter(taskDelFailed__lt=5)
     for T in Ts:
         actDelete(T.id);                
     time.sleep(5);        

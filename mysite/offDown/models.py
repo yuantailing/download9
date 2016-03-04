@@ -34,7 +34,7 @@ class Tasks(models.Model):
     taskCompletedTime = models.DateTimeField(null = True);
     taskGid = models.CharField(max_length = 200, null = True);
     taskStatus = models.CharField(max_length = 200, default=b'');
-    taskDelFailed = models.BooleanField(default = False);
+    taskDelFailed = models.IntegerField(default = 0);
     user = models.ForeignKey(Users);
     def __str__(self):
         return self.taskName;
