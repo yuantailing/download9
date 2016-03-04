@@ -51,7 +51,7 @@
             <td name="rate">{{ task.taskRate }}%</td>
             <td name="speed">{{ task.taskSpeed }}KiB/s</td>
             {% if task.taskCompletedTime != None %}
-            <td name="file"><a href="{% static 'offDown/download/' %}{{task.taskFilename}}">下载</a></td>
+            <td name="file"><a href="{% static 'download/' %}{{task.taskFilename}}">下载</a></td>
             {% else %}
             <td name="file">未完成</td>
             {% endif %}
@@ -59,7 +59,7 @@
             {% if task.taskType == 1 %}
             <td><a href="{{ task.taskUrl }}">原始链接</a></td>
             {% else %}
-            <td><a href="{% static 'offDown/download/' %}{{ task.taskUrl }}">原始链接</a></td>
+            <td><a href="{% static 'download/' %}{{ task.taskUrl }}">原始链接</a></td>
             {% endif %}
           </tr>
         {% endfor %}

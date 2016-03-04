@@ -73,7 +73,10 @@ TEMPLATES = [
         },
     },
 ]
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/nanaraid/Download9',
+]
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 
