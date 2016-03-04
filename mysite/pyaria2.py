@@ -36,7 +36,7 @@ import time
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 6800
 SERVER_URI_FORMAT = 'http://{}:{:d}/rpc'
-DEFAULT_DIR = '/nanaraid/Download9/'
+DEFAULT_DIR = '/nanaraid/Download9/download/'
 
 class PyAria2(object):
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, session=None):

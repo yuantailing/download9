@@ -6,7 +6,7 @@ from django.template import RequestContext, loader
 from django.views import generic
 from django.utils import timezone
 import hashlib
-from offDown.pyaria2 import *
+from pyaria2 import *
 import os, sys
 import urllib
 import json

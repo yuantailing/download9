@@ -102,7 +102,7 @@ while True:
     Ts = Tasks.objects.filter(taskDelFailed__gt=0).filter(taskDelFailed__lt=5)
     for T in Ts:
         actDelete(T.id);                
-    time.sleep(5);        
+    time.sleep(2);        
             
             
                 

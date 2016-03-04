@@ -17,6 +17,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^offDown/', include('offDown.urls', namespace="offDown")),
+    #url(r'^offDown/', include('offDown.urls', namespace="offDown")),
     url(r'^admin/', admin.site.urls),
+    url(r'^',include('offDown.urls',namespace="offDown")),
+    #url(r'^[\s\S]*',include('offDown.urls',namespace="offDown")),
 ]
