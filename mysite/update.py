@@ -31,6 +31,12 @@ while True:
         if T.was_outdated():
             T.taskActive = 0;
             T.taskDelFailed = 1;
+            User = T.user;
+            User.usedTaskNumber -= 1;
+            User.usedDiskSpace -= T.taskFilesize;
+            User.save();
+            #print(task.taskGid);
+            T.save();
             continue;
             
         if T.taskCompletedTime == None:
