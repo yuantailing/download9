@@ -32,13 +32,14 @@
     <body>
 
         <div class="container">
-            <form class="form-signin" action="{% url 'offDown:login' %}" method="POST">
+	    <form class="form-signin">
+            <!--form class="form-signin" action="{% url 'offDown:login' %}" method="POST"-->
                 {% csrf_token %}
                 <h2 class="form-signin-heading">请先登入</h2>
                 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-                <input type="username" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+                <input type="username" name="username" id="username" class="form-control" placeholder="点击绿色按钮登入" required autofocus>
                 <label for="username" class="sr-only">Username</label>
-                <input type="password" name="pre-password" id="pre-password" class="form-control" placeholder="Password" required>
+                <input type="password" name="pre-password" id="pre-password" class="form-control" placeholder="呵呵" required>
                 <label for="pre-password" class="sr-only">Password</label>
                 <input type="hidden" name="password" id="password">
                 <div class="checkbox">
@@ -46,10 +47,10 @@
                         <input type="checkbox" name="remember" value="1"> 记住我
                     </label>
                 </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">登入</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">点这里登入↓</button>
             </form>
             <div class="form-signin">
-                <a style = "text-decoration: none"href="{% url 'offDown:regist' %}"> <button class="btn btn-warning buttom-reg-left">注册</button></a>
+                <!--a style = "text-decoration: none"href="{% url 'offDown:regist' %}"--> <button class="btn btn-warning buttom-reg-left">点这里登入-></button><!--/a-->
                 <a style = "text-decoration: none"href="https://accounts.net9.org/api/authorize?client_id=dIKjGHUcbe8mu2TRU5V0xu4XeQk&redirect_uri=http://download.net9.org/oauth_redirect"> <button class="btn btn-success buttom-reg-right">使用Accounts9登入</button></a>
             </div>
         </div> <!-- /container -->

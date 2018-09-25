@@ -10,6 +10,7 @@ import zipfile
 from offDown.views import get_md5, actDelete
 from django.utils import timezone
 import hashlib
+import os
 con = PyAria2();
 
 def compress(filesInfo):
@@ -26,6 +27,7 @@ def compress(filesInfo):
     return zipFilename;
 
 while True:
+    os.system("ping6 a.net9.org -c 2");
     Ts = Tasks.objects.filter(taskActive=1);
     for T in Ts:
         if T.was_outdated():

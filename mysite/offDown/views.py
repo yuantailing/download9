@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*- 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -122,13 +123,21 @@ def login(request):
 def oauth(request):
     
     try:
+        #print("Hello World");
         code = request.GET['code'];
         a9url = 'https://accounts.net9.org/api/access_token?client_id=' + A9ClientID + '&client_secret=' + A9ClientSecret + '&code=' + code;
+        #print(a9url);
         res = urllib.request.urlopen(a9url);
+        #print(res.read().decode('utf-8'));
         token = json.loads(res.read().decode('utf-8'))['access_token'];
         info_url = 'https://accounts.net9.org/api/userinfo?access_token=' + token;
+        #print(info_url);
         res = urllib.request.urlopen(info_url);
+        #print(res);
         User_info = json.loads(res.read().decode('utf-8'));
+        #print(User_info);
+        #for key, value in User_info.items() :
+        #    print (key, value)
         a9_username = User_info['user']['name'] + '__a9';
     except:
         HttpResponseRedirect(reverse('offDown:login'));
@@ -201,7 +210,7 @@ def new2(request):
     try:
         realurl, realFilename = getDownloadFilename(request.POST['url']);
         outFilename = get_md5(str(timezone.now()))[0:5] + '_' + realFilename;
-        if len(outFilename) > 50:
+        if len(outFilename) > 70:
             outFilename = get_md5(str(timezone.now()));
         Gid = con.addUri(uris=[realurl], options={'out': outFilename, 'dir':DEFAULT_DIR});
         #Gid = con.addUri(uris=[realurl], options={'dir':DEFAULT_DIR});
@@ -518,5 +527,9 @@ def getStatus(request):
     res['taskStartTime'] = str(res['taskStartTime']);
     res['taskCompletedTime'] = str(res['taskCompletedTime']);
     res['user'] = None;
+    try:
+        res['realFilename'] = urllib.parse.quote(res['taskFilename'])
+    except:
+        pass
     return HttpResponse(json.dumps(res));
     

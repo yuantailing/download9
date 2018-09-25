@@ -17,7 +17,7 @@ function refresh() {
             if(x.taskCompletedTime != "None")
             {
                 thisTable.attr("class", "success");
-                var downloadLink="<a href=\"/static/download/" + x.taskFilename + "\">下载</a>";
+                var downloadLink="<a href=\"/static/download/" + x.realFilename + "\">下载</a>";
                 thisTable.children("[name='file']").html(downloadLink);
             }
         });

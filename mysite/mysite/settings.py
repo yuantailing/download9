@@ -25,9 +25,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&+8_v7d17^5@vn_4!9y8*97!)pzx151is_&g(a9-0a1_+%ge_^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['download.net9.org', 'dl.n9.vc']
 
 
 # Application definition
@@ -87,7 +87,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': 'localhost',
-        'USER': 'root',
+        'USER': 'Blink',
         'PASSWORD': '',
         'NAME': 'offDown',
     }

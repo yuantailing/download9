@@ -1,6 +1,8 @@
+# -*- coding:utf-8 -*- 
 from django.db import models
 from django.utils import timezone
 import datetime
+import urllib.parse
 '''
 用户一张表，包括用户ID，用户名，总空间配额，总任务数配额，已使用空间，已使用任务数，用户任务最多存在时间。
 
@@ -44,3 +46,5 @@ class Tasks(models.Model):
         return self.taskStartTime < timezone.now() - datetime.timedelta(hours = self.user.savetimeLimit);
     def toDict(self):
         return dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]);
+    def realFilename(self):
+        return urllib.parse.quote(self.taskFilename);
