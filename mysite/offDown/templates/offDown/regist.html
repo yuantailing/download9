@@ -1,0 +1,65 @@
+{% load staticfiles %}
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <meta name="description" content="注册">
+        <meta name="author" content="Blink">
+        
+        <title>Download9注册</title>
+        
+        <script src="{% static 'offDown/js/jquery.js' %}"></script>
+        <script src="{% static 'offDown/js/jquery.md5.js' %}"></script>
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+        <link href="{% static 'offDown/css/bootstrap.css' %}" rel="stylesheet" >
+        <link href="{% static 'offDown/css/regist.css' %}" rel="stylesheet" >
+        
+ 
+ 
+        <script>
+            $().ready(function(){
+                $("form").submit(function(){
+                    var ps1 = $("#pre-password").val();
+                    var ps2 = $("#rep-password").val();
+                    if (ps1 != ps2)
+                    {
+                        $("#rep-password").attr("placeholder", "两次密码输入不同");
+                        $("#rep-password").val('');
+                        return false;
+                    }
+                    
+                    
+                    var v=$.md5($("#pre-password").val());
+                    $("#password").val(v);
+                    $("#pre-password").attr("disabled", "true");
+                    return true;
+                });
+            });
+    </script>
+    </head>
+    
+    <body>
+
+        <div class="container">
+            <form class="form-signin" action="{% url 'offDown:regist' %}" method="POST">
+                {% csrf_token %}
+                <h2 class="form-signin-heading">注册</h2>
+                {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+                <input type="username" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+                <label for="username" class="sr-only">Username</label>
+                <input type="password" name="pre-password" id="pre-password" class="form-control" placeholder="Password" required>
+                <label for="pre-password" class="sr-only">Password</label>
+                <input type="password" name="rep-password" id="rep-password" class="form-control" placeholder="Confirm Password" required>
+                <label for="rep-password" class="sr-only">Confirm Password</label>
+                <input type="hidden" name="password" id="password">
+                <div class="g-recaptcha" data-sitekey="6LfA3BgTAAAAAKqbOu666FW1YjAGJHhttcGVV2NV"></div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" >注册</button>
+            </form>
+            
+            </div> <!-- /container -->
+      
+
+    </body>
+</html>

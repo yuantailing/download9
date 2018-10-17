@@ -1,0 +1,26 @@
+{% load staticfiles %}
+      {% for task in tasks %}
+        {% if task.taskCompletedTime != None %}
+          <tr class="success" id = "{{ task.id }}">
+        {% else %}
+          <tr id = "{{ task.id }}">
+        {% endif %}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ task.taskName }}</td>
+            <td>{{ task.taskStatus }}</td>
+            <td>{{ task.taskFilesize }}MB</td>
+            <td>{{ task.taskRate }}%</td>
+            <td>{{ task.taskSpeed }}KiB/s</td>
+            {% if task.taskCompletedTime != None %}
+            <td><a href="{% static 'download/' %}{{task.realFilename}}">下载</a></td>
+            {% else %}
+            <td>未完成</td>
+            {% endif %}
+            <td><a href="del?taskID={{ task.id }}">删除</a></td>
+            {% if task.taskType == 1 %}
+            <td><a href="{{ task.taskUrl }}">原始链接</a></td>
+            {% else %}
+            <td><a href="{% static 'download/' %}{{ task.taskUrl }}">原始链接</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}

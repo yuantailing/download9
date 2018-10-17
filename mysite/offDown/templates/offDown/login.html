@@ -1,0 +1,41 @@
+{% load staticfiles %}
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <meta name="description" content="登入">
+        <meta name="author" content="Blink">
+        
+        <title>Download9登入</title>
+        
+        <script src="{% static 'offDown/js/jquery.js' %}"></script>
+        <script src="{% static 'offDown/js/jquery.md5.js' %}"></script>
+        <link href="{% static 'offDown/css/bootstrap.css' %}" rel="stylesheet" >
+        <link href="{% static 'offDown/css/signin.css' %}" rel="stylesheet" >
+        
+ 
+ 
+        <script>
+            $().ready(function(){
+                $("form").submit(function(){
+                    var v=$.md5($("#pre-password").val());
+                    $("#password").val(v);
+                    $("#pre-password").attr("disabled", "true");
+                    return true;
+                });
+            });
+    </script>
+    </head>
+    
+    <body>
+
+        <div class="container">
+	    <form class="form-signin">
+                <h2 class="form-signin-heading">请先登入</h2>
+                <a class="btn btn-lg btn-primary btn-block" href="/github_oauth_authorize">使用 GitHub OAuth 登入</a>
+            </form>
+        </div> <!-- /container -->
+    </body>
+</html>

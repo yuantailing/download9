@@ -1,0 +1,37 @@
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Download9</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li {% if show %}class="active"{% endif %}><a href="{% url 'offDown:index' %}">首页</a></li>
+            <!-- li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li-->
+            <li class="{% if not show %}active{% endif %} dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">新建任务 <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#" data-toggle="modal" data-target="#newurlmodal">新建链接任务</a></li>
+                <!--li><a href="{% url 'offDown:new_bytorrent' %}">新建BT任务</a></li-->
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a>{{ User.username }}</a></li>
+            <li><a href="{% url 'offDown:logout' %}">登出</a></li>
+          </ul>
+          <form action="{% url 'offDown:search' %}" method="GET" class="navbar-form navbar-right" role="search">
+            <input name="taskName" class="form-control" type="text" placeholder="Search" autocomplete="off" />
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a>任务数限制: {{ User.usedTaskNumber }}/{{ User.taskNumberLimit }} 空间限制: {{ User.usedDiskSpace }}/{{ User.diskSpaceLimit }}MB</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>

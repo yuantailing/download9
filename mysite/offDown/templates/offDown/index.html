@@ -1,0 +1,191 @@
+{% load staticfiles %}
+
+<html lang="zh-CN">
+  {% include 'offDown/head.html' %}
+  
+  <body role="document">
+    {% include 'offDown/nav.html' %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li {% if show == 'all' %}class="active"{% endif %}><a href="?show=all">全部</a></li>
+            <li {% if show == 'completed' %}class="active"{% endif %}><a href="?show=completed">已完成</a></li>
+            <li {% if show == 'incompleted' %}class="active"{% endif %}><a href="?show=incompleted">未完成</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h2 class="sub-header">
+      {% if show == 'all' %}全部任务{% endif %}
+      {% if show == 'completed' %}已完成任务{% endif %}
+      {% if show == 'incompleted' %}未完成任务{% endif %}
+    </h2>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>任务名</th>
+            <th>任务状态</th>
+            <th>文件大小</th>
+            <th>任务进度</th>
+            <th>实时速度</th>
+            <th>取回本地</th>
+            <th>删除</th>
+            <th>原始链接</th>
+          </tr>
+        </thead>
+        <tbody name = "tbody">
+        {% for task in tasks %}
+        {% if task.taskCompletedTime != None %}
+          <tr name = "statusTable" class="success" id = "{{ task.id }}">
+        {% else %}
+          <tr name = "statusTable" id = "{{ task.id }}">
+        {% endif %}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ task.taskName }}</td>
+            <td name="status">{{ task.taskStatus }}</td>
+            <td name="size">{{ task.taskFilesize }}MB</td>
+            <td name="rate">{{ task.taskRate }}%</td>
+            <td name="speed">{{ task.taskSpeed }}KiB/s</td>
+            {% if task.taskCompletedTime != None %}
+            <td name="file"><a href="{% static 'download/' %}{{task.taskFilename|urlencode}}">下载</a></td>
+            {% else %}
+            <td name="file">未完成</td>
+            {% endif %}
+            <td><a href="del?taskID={{ task.id }}">删除</a></td>
+            {% if task.taskType == 1 %}
+            <td><a href="{{ task.taskUrl }}">原始链接</a></td>
+            {% else %}
+            <td><a href="{% static 'download/' %}{{ task.taskUrl }}">原始链接</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+
+<!-- Modal -->
+    <div class="modal fade" id="newurlmodal" tabindex="-1" role="dialog" aria-labelledby="newurlmodallabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" name="newurlmodalhead" id="newurlmodalhead">新建链接任务</h4>
+          </div>
+      
+          <form id="newbyurlform" name="newbyurlform">    
+            <div class="modal-body">
+              {% csrf_token %}
+              <input class="form-control" name="name" type="text" placeholder="任务名(用于区别任务的标识)">
+              <textarea name="url" id="url" class="form-control" rows="3" placeholder="下载地址(支持HTTP/HTTPS, PS. 下载完成后, 某种机制下, 文件名可能会被重命名为一个随机字符串, 取回后请自行加后缀及重命名)" style="margin-top: 10px"></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button id="submiturlbtn" class="btn btn-primary" type="submit">确定</button>
+            </div>
+          </form>  
+      
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="newtorrentmodal" tabindex="-1" role="dialog" aria-labelledby="newtorrentmodallabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" name="newtorrentmodalhead" id="newtorrentmodalhead">新建BT任务</h4>
+          </div>
+      
+          <form id="newbytorrentform" name="newbytorrentform" enctype="multipart/form-data">    
+            <div class="modal-body">
+              {% csrf_token %}
+              <input class="form-control" name="name" type="text" placeholder="任务名(用于区别任务的标识)" style="width: 300px"> 
+              <label for="inputfile">请选择种子</label>
+              <input type="file" name='torrentfile' id="inputfile">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button id="submittorrentbtn" class="btn btn-primary" type="submit">确定</button>
+              <!--button class="btn disabled" type="submit">确定</button-->
+            
+            </div>
+          </form>  
+      
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'offDown/jq.html' %}
+  <script src="{% static 'offDown/js/ajax_refresh.js' %}"></script>
+  </body>
+  <script>
+    $(function(){
+    $('#newbyurlform').on('submit', function(e){
+        $('#submiturlbtn').attr("class", "btn disabled");
+        $('#submiturlbtn').prop('disabled', true);
+        $('#submiturlbtn').text("正在解析下载地址");
+        e.preventDefault();
+        $.ajax({
+            url: '{% url 'offDown:new2' %}', //this is the submit URL
+            type: 'POST', //or POST
+            data: $('#newbyurlform').serialize(),
+            success: function(data){
+                var x = JSON.parse(data);
+                if(x.status == 'error')
+                {
+                    $('#newurlmodalhead').text(x.content); 
+                    $('#submiturlbtn').attr("class", "btn btn-primary");
+                    $('#submiturlbtn').prop('disabled', false);
+                    $('#submiturlbtn').text("确定");
+                }
+                if(x.status == 'success')
+                {
+                    $('#newurlmodalhead').text("添加成功");
+                    location.reload();
+                }
+                //console.log(data);
+            }
+        });
+    });
+});
+    $(function(){
+    $('#newbytorrentform').on('submit', function(e){
+        $('#submittorrentbtn').attr("class", "btn disabled");
+        $('#submittorrentbtn').prop('disabled', true);
+        $('#submittorrentbtn').text("正在解析种子");
+        e.preventDefault();
+        var formData = new FormData($('#newbytorrentform')[0]);
+        var x='222';
+        $.ajax({
+            url: '{% url 'offDown:newTorrent2' %}', //this is the submit URL
+            type: 'POST', //or POST
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                var x = JSON.parse(data);
+                if(x.status == 'error')
+                {
+                    $('#newtorrentmodalhead').text(x.content); 
+                    $('#submittorrentbtn').attr("class", "btn btn-primary");
+                    $('#submittorrentbtn').prop('disabled', false);
+                    $('#submittorrentbtn').text("确定");
+                }
+                if(x.status == 'success')
+                {
+                    $('#newtorrentmodalhead').text("添加成功");
+                    location.reload();
+                }
+                //console.log(data);
+            }
+        });
+    });
+});
+</script>
+</html>

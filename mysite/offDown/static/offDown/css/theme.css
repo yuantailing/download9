@@ -1,0 +1,210 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  border: 0;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+  }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
+}
+
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+  margin-bottom: 30px;
+  text-align: center;
+}
+.placeholders h4 {
+  margin-bottom: 0;
+}
+.placeholder {
+  margin-bottom: 20px;
+}
+.placeholder img {
+  display: inline-block;
+  border-radius: 50%;
+}
+
+
+
+.download .label {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  -webkit-transition: all 2s;
+  transition: all 2s;
+}
+
+.download .title {
+  padding: 5px;
+}
+
+.download .progress {
+  background-color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.download .progress-bar {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.download-name {
+  font-weight: bold;
+  font-size: small;
+  word-wrap: break-word;
+}
+.active-download, .waiting-download, .stopped-download, .download {
+  cursor: pointer;
+  width: 100%;
+  padding: 4px 5px;
+}
+
+/* fix table  layout to break words */
+@media (max-width: 767px) {
+.active-download, .waiting-download, .stopped-download, .download {
+  table-layout: fixed;
+}
+}
+
+.download-graph {
+  width: 40%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-right: 30px;
+}
+.large-graph {
+  width: 66%;
+}
+.stats {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+}
+.stats li {
+  display: inline-block;
+  margin-bottom: 2px;
+  padding: 0.75ex;
+  min-width: 20ex;
+  text-align: center;
+}
+
+.download-item {
+  margin: 0;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 0.3ex;
+  padding-bottom: 0.5ex;
+}
+
+.download-controls .btn-group {
+  float: right;
+  height: 28px;
+}
+.download-controls > .btn-group {
+  margin-right: 5px;
+  margin-top: 5px;
+}
+.download-controls .btn-group .btn {
+  height: 100%;
+}
+.download-controls .btn-group .btn span {
+  font-size: 14px;
+  color: gray;
+}
+
+.download-detail h4 {
+  margin-left: 10px;
+}
+.download-files {
+  margin: 0;
+}
+.download-files li {
+  display: inline-block;
+  padding: 0.8ex;
+  max-width: 100%;
+  margin: 0 6px 6px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
