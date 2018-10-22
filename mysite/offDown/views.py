@@ -423,6 +423,7 @@ def new_bytorrent(request):
     })    
 
 def newTorrent2(request):
+    from pyaria2 import DEFAULT_DIR
     if not checkLogin(request):
         return HttpResponseRedirect(reverse('offDown:login'));
     User = Users.objects.get(id=int(request.session['userid']));
