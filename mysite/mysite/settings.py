@@ -27,7 +27,7 @@ SECRET_KEY = '&+8_v7d17^5@vn_4!9y8*97!)pzx151is_&g(a9-0a1_+%ge_^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['download.cg.tsing.net']
+ALLOWED_HOSTS = ['download.thucg.com']
 
 
 # Application definition
