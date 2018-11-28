@@ -34,7 +34,7 @@
         <div class="container">
 	    <form class="form-signin">
                 <h2 class="form-signin-heading">请先登入</h2>
-                <a class="btn btn-lg btn-primary btn-block" href="/github_oauth_authorize">使用 GitHub OAuth 登入</a>
+                <a class="btn btn-lg btn-primary btn-block" href="{% url 'offDown:github_oauth_authorize' %}">使用 GitHub OAuth 登入</a>
             </form>
         </div> <!-- /container -->
     </body>

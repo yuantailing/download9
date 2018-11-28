@@ -18,7 +18,7 @@ from django.contrib import admin
 
 urlpatterns = [
     #url(r'^offDown/', include('offDown.urls', namespace="offDown")),
-    url(r'^admin/', admin.site.urls),
-    url(r'^',include('offDown.urls',namespace="offDown")),
+    url(r'^download9/admin/', admin.site.urls),
+    url(r'^download9/',include('offDown.urls',namespace="offDown")),
     #url(r'^[\s\S]*',include('offDown.urls',namespace="offDown")),
 ]

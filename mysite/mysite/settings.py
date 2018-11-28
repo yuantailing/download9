@@ -27,7 +27,7 @@ SECRET_KEY = '&+8_v7d17^5@vn_4!9y8*97!)pzx151is_&g(a9-0a1_+%ge_^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['download.thucg.com']
+ALLOWED_HOSTS = ['cg.cs.tsinghua.edu.cn']
 
 
 # Application definition
@@ -123,8 +123,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/download9/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+SESSION_COOKIE_NAME = 'download9-sessionid'
+CSRF_COOKIE_NAME = 'download9-csrftoken'
 
 GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET')
