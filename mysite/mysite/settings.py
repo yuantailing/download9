@@ -126,8 +126,5 @@ USE_TZ = True
 STATIC_URL = '/download9/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-SESSION_COOKIE_NAME = 'download9-sessionid'
-CSRF_COOKIE_NAME = 'download9-csrftoken'
-
-GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID')
-GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET')
+GITHUB_CLIENT_ID = ''
+GITHUB_CLIENT_SECRET = ''
