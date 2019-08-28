@@ -8,7 +8,7 @@
         <meta name="description" content="登入">
         <meta name="author" content="Blink">
         
-        <title>Download9登入</title>
+        <title>CG Download 登入</title>
         
         <script src="{% static 'offDown/js/jquery.js' %}"></script>
         <script src="{% static 'offDown/js/jquery.md5.js' %}"></script>
@@ -35,6 +35,7 @@
 	    <form class="form-signin">
                 <h2 class="form-signin-heading">请先登入</h2>
                 <a class="btn btn-lg btn-primary btn-block" href="{% url 'offDown:github_oauth_authorize' %}">使用 GitHub OAuth 登入</a>
+				<p style="margin-top: 15px;">鸣谢计算机系学生科协网络部 Download9 <a href="https://git.net9.org/sast/Download9">开源项目</a>，本<a href="https://github.com/yuantailing/download9/tree/cg">修改版本</a>由 THUCG 运行。若你有 Account9 帐号，可使用<a href="https://download.net9.org/">科协新版 Download9</a></p>
             </form>
         </div> <!-- /container -->
     </body>
