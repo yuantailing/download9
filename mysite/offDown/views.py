@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*- 
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .models import *
 from django.template import RequestContext, loader
 from django.views import generic
 from django.utils import timezone
+from django.utils.encoding import filepath_to_uri
 import hashlib
 from pyaria2 import *
 import os, sys
@@ -123,10 +124,13 @@ def login(request):
     return response;
 
 def github_oauth_authorize(request):
-    return HttpResponseRedirect('https://github.com/login/oauth/authorize?client_id={:s}'.format(settings.GITHUB_CLIENT_ID))
+    return HttpResponseRedirect('https://github.com/login/oauth/authorize?client_id={:s}&redirect_uri={:s}'.format(settings.GITHUB_CLIENT_ID, filepath_to_uri('https://cg.cs.tsinghua.edu.cn{:s}?host={:s}'.format(reverse('offDown:oauth'), filepath_to_uri(request.get_host())))))
 
 def oauth(request):
     code = request.GET.get('code')
+    host = request.GET.get('host')
+    if host == 'www.thucg.com' and request.get_host() == 'cg.cs.tsinghua.edu.cn':
+        return redirect('https://www.thucg.com{:s}'.format(request.get_full_path()))
     if not code:
         return HttpResponseBadRequest('no verification code')
     res = requests.post(
